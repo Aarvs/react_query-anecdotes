@@ -2,20 +2,32 @@ import { useQuery, useMutation, useQueryClient} from '@tanstack/react-query'
 import AnecdoteForm from './components/AnecdoteForm'
 import Notification from './components/Notification'
 import { getAll, updateVote } from './request'
+import { useNotificationDispatch } from './context/notificationContext'
 
 const App = () => {
   const queryClient = useQueryClient()
 
+  const dispatch = useNotificationDispatch()
+
   const updateVoteMutation = useMutation({
     mutationFn :updateVote,
-    onSuccess: () => {
-      queryClient.invalidateQueries({queryKey:["anecdotes"]})
+    onSuccess: (updatedVote) => {
+      // queryClient.invalidateQueries({queryKey:["anecdotes"]})
+      const anecdotes = queryClient.getQueryData(['anecdotes'])
+      const target = anecdotes.find((anecdote) => anecdote.id === updatedVote.id)
+      queryClient.setQueryData(['anecdotes'], anecdotes.map((anecdote) => anecdote.id !== target.id ? anecdote : updatedVote))
     } 
   })
 
   const handleVote = (anecdote) => {
     console.log('vote')
     updateVoteMutation.mutate(anecdote)
+
+    // for notification 
+    dispatch({
+        type: 'VOTED_ANECDOTE',
+        payload: `anecdote "${anecdote.content}" voted`
+    })
   }
 
 
@@ -43,7 +55,6 @@ const App = () => {
       <Notification />
       <AnecdoteForm />
     
-    {/* Problem is here...  */}
       {anecdotes.map(anecdote =>
         <div key={anecdote.id}>
           <div>
