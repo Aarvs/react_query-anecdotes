@@ -8,6 +8,8 @@ const notificationReducer = (state, action) => {
             return [action.payload]
         case 'VOTED_ANECDOTE':
             return [action.payload]
+        case 'ERROR':
+            return action.payload    
         case 'CLEAR_NOTIFICATION':
             return ""    
         default:

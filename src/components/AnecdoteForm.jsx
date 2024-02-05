@@ -13,7 +13,13 @@ const AnecdoteForm = () => {
       // queryClient.invalidateQueries({queryKey:['anecdotes']})
       const anecdotes = queryClient.getQueryData(['anecdotes'])
       queryClient.setQueryData(['anecdotes'], anecdotes.concat(newAnecdote))
-    }
+    },
+    // onError: (error) => {
+    //   dispatch({
+    //     type: 'ERROR',
+    //     payload: `Error: ${error.message}`
+    //   })
+    // }
   })
 
   console.log(newAnecdoteMutation.data)
@@ -25,6 +31,14 @@ const AnecdoteForm = () => {
     event.target.anecdote.value = ''
     console.log(content)
     newAnecdoteMutation.mutate(content)
+
+    if(content.length < 5){
+      dispatch({
+        type: 'ERROR',
+        payload: `${content} is too short anecdote, must have length 5 or more`
+      })
+      return
+    }
 
     // for notification
     dispatch({
